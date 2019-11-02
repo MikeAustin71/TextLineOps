@@ -133,7 +133,7 @@ func (txtBuilder TextLineBuilder) CreateBlankLines(
 }
 
 func (txtBuilder TextLineBuilder) CreateIntegerText(
-	intTxtSpec IntegerTextSpec,
+	intTxtSpec IntegerSpec,
 	b *strings.Builder,
 	ePrefix string) error {
 
@@ -345,7 +345,7 @@ func (txtBuilder TextLineBuilder) CreateLine(
 }
 
 func (txtBuilder TextLineBuilder) CreateMarginField(
-	margin MarginFieldSpec,
+	margin MarginSpec,
 	b *strings.Builder,
 	ePrefix string) error {
 

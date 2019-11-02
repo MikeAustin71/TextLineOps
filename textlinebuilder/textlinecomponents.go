@@ -14,10 +14,10 @@ func (blkLine *BlankLinesSpec) CopyOut() BlankLinesSpec {
 	return newBlankLineSpec
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (blkLine BlankLinesSpec) FieldType() string {
+func (blkLine BlankLinesSpec) TextTypeName() string {
 	return "BlankLinesSpec"
 }
 
@@ -32,10 +32,10 @@ func (blkLine BlankLinesSpec) NewPtr() *BlankLinesSpec {
 type LineBreakSpec struct {
 	CreateLineBreak      bool
 	LeadingBlankLines    BlankLinesSpec
-	LeftMargin           MarginFieldSpec
-	LeftSpacer           MarginFieldSpec
+	LeftMargin           MarginSpec
+	LeftSpacer           MarginSpec
 	LineSpec             LineSpec
-	RightSpacer          MarginFieldSpec
+	RightSpacer          MarginSpec
 	TerminateWithNewLine NewLineSpec
 	TrailingBlankLines   BlankLinesSpec
 }
@@ -56,10 +56,10 @@ func (lineBrk *LineBreakSpec) CopyOut() LineBreakSpec {
 	return newLineBreak
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (lineBrk LineBreakSpec) FieldType() string {
+func (lineBrk LineBreakSpec) TextTypeName() string {
 	return "LineBreakSpec"
 }
 
@@ -98,10 +98,10 @@ func (twoLabelLine *TwoLabelStrLine) CopyOut() TwoLabelStrLine {
 	return newTwoLabelLine
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (twoLabelLine TwoLabelStrLine) FieldType() string {
+func (twoLabelLine TwoLabelStrLine) TextTypeName() string {
 	return "TwoLabelStrLine"
 }
 
@@ -139,10 +139,10 @@ func (labelIntLine *OneLabelOneIntLine) CopyOut() OneLabelOneIntLine {
 }
 
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (labelIntLine OneLabelOneIntLine) FieldType() string {
+func (labelIntLine OneLabelOneIntLine) TextTypeName() string {
 	return "OneLabelOneIntLine"
 }
 

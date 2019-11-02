@@ -1,10 +1,10 @@
 package textlinebuilder
 
 type TextFieldSpec interface {
-	FieldType() string
+	TextTypeName() string
 }
 
-type IntegerTextSpec struct {
+type IntegerSpec struct {
 	NumericValue          int
 	NumericFieldSpec      string
 	NumericFieldLength    int
@@ -12,9 +12,9 @@ type IntegerTextSpec struct {
 	NumericPosition       FieldPositionSpec
 }
 
-func (intSpec *IntegerTextSpec) CopyOut() IntegerTextSpec {
+func (intSpec *IntegerSpec) CopyOut() IntegerSpec {
 
-	newInt := IntegerTextSpec{}
+	newInt := IntegerSpec{}
 	newInt.NumericValue = intSpec.NumericValue
 	newInt.NumericFieldSpec = intSpec.NumericFieldSpec
 	newInt.NumericFieldLength = intSpec.NumericFieldLength
@@ -23,18 +23,18 @@ func (intSpec *IntegerTextSpec) CopyOut() IntegerTextSpec {
 	return newInt
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (intSpec IntegerTextSpec) FieldType() string {
-	return "IntegerTextSpec"
+func (intSpec IntegerSpec) TextTypeName() string {
+	return "IntegerSpec"
 }
 
 // NewPtr - Returns a pointer to a new LineSpec
 // instance.
-func (intSpec IntegerTextSpec) NewPtr() *IntegerTextSpec {
+func (intSpec IntegerSpec) NewPtr() *IntegerSpec {
 
-	anotherIntTxtSpec := IntegerTextSpec{}
+	anotherIntTxtSpec := IntegerSpec{}
 
 	return &anotherIntTxtSpec
 }
@@ -56,10 +56,10 @@ func (lineSpec *LineSpec) CopyOut() LineSpec {
 	return newLineSpec
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (lineSpec LineSpec) FieldType() string {
+func (lineSpec LineSpec) TextTypeName() string {
 	return "LineSpec"
 }
 
@@ -73,15 +73,15 @@ func (lineSpec LineSpec) NewPtr() *LineSpec {
 }
 
 
-type MarginFieldSpec struct {
+type MarginSpec struct {
 	MarginStr           string
 	MarginLength        int
 	MarginChar          rune
 }
 
-func (margin *MarginFieldSpec) CopyOut() MarginFieldSpec {
+func (margin *MarginSpec) CopyOut() MarginSpec {
 
-	newMargin := MarginFieldSpec{}
+	newMargin := MarginSpec{}
 
 	newMargin.MarginStr = margin.MarginStr
 	newMargin.MarginChar = margin.MarginChar
@@ -90,18 +90,18 @@ func (margin *MarginFieldSpec) CopyOut() MarginFieldSpec {
 	return newMargin
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (margin MarginFieldSpec) FieldType() string {
-	return "MarginFieldSpec"
+func (margin MarginSpec) TextTypeName() string {
+	return "MarginSpec"
 }
 
-// NewPtr - Returns a pointer to a new MarginFieldSpec
+// NewPtr - Returns a pointer to a new MarginSpec
 // instance.
-func (margin MarginFieldSpec) NewPtr() *MarginFieldSpec {
+func (margin MarginSpec) NewPtr() *MarginSpec {
 
-	newMarginField := MarginFieldSpec{}
+	newMarginField := MarginSpec{}
 
 	return &newMarginField
 }
@@ -119,10 +119,10 @@ func (newLine *NewLineSpec) CopyOut() NewLineSpec {
 	return newNewLine
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (newLine NewLineSpec) FieldType() string {
+func (newLine NewLineSpec) TextTypeName() string {
 	return "NewLineSpec"
 }
 
@@ -137,11 +137,11 @@ func (newLine NewLineSpec) NewPtr() *NewLineSpec {
 }
 
 type NumericIntFieldSpec struct {
-	LeftMargin            MarginFieldSpec
-	LeftSpacer            MarginFieldSpec
-	NumberSpec            IntegerTextSpec
-	RightSpacer           MarginFieldSpec
-	TerminateWithNewLine  NewLineSpec
+	LeftMargin           MarginSpec
+	LeftSpacer           MarginSpec
+	NumberSpec           IntegerSpec
+	RightSpacer          MarginSpec
+	TerminateWithNewLine NewLineSpec
 }
 
 // CopyOut - Returns a deep copy of the current NumericIntFieldSpec
@@ -153,17 +153,16 @@ func (numIntField *NumericIntFieldSpec) CopyOut() NumericIntFieldSpec {
 	newNumField.LeftMargin = numIntField.LeftMargin.CopyOut()
 	newNumField.LeftSpacer = numIntField.LeftSpacer.CopyOut()
 	newNumField.NumberSpec = numIntField.NumberSpec.CopyOut()
-	newNumField.NumericPosition = numIntField.NumericPosition
 	newNumField.RightSpacer = numIntField.RightSpacer.CopyOut()
 	newNumField.TerminateWithNewLine = numIntField.TerminateWithNewLine.CopyOut()
 
 	return newNumField
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (numIntField NumericIntFieldSpec) FieldType() string {
+func (numIntField NumericIntFieldSpec) TextTypeName() string {
 	return "NumericIntFieldSpec"
 }
 
@@ -177,12 +176,11 @@ func (numIntField NumericIntFieldSpec) NewPtr() *NumericIntFieldSpec {
 
 
 type StringFieldSpec struct {
-	LeftMargin            MarginFieldSpec
-	LeftSpacer            MarginFieldSpec
-	StrTxt                StringTextSpec
-	StrPosition           FieldPositionSpec
-	RightSpacer           MarginFieldSpec
-	TerminateWithNewLine  NewLineSpec
+	LeftMargin           MarginSpec
+	LeftSpacer           MarginSpec
+	StrTxtSpec           StringSpec
+	RightSpacer          MarginSpec
+	TerminateWithNewLine NewLineSpec
 }
 
 func (strField *StringFieldSpec) CopyOut() StringFieldSpec {
@@ -191,18 +189,17 @@ func (strField *StringFieldSpec) CopyOut() StringFieldSpec {
 
 	newStrField.LeftMargin = strField.LeftMargin.CopyOut()
 	newStrField.LeftSpacer = strField.LeftSpacer.CopyOut()
-	newStrField.StrTxt = strField.StrTxt.CopyOut()
-	newStrField.StrPosition = strField.StrPosition
+	newStrField.StrTxtSpec = strField.StrTxtSpec.CopyOut()
 	newStrField.RightSpacer = strField.RightSpacer.CopyOut()
 	newStrField.TerminateWithNewLine = strField.TerminateWithNewLine
 
 	return newStrField
 }
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (strField StringFieldSpec) FieldType() string {
+func (strField StringFieldSpec) TextTypeName() string {
 	return "StringFieldSpec"
 }
 
@@ -216,17 +213,18 @@ func (strField StringFieldSpec) NewPtr() *StringFieldSpec {
 }
 
 
-type StringTextSpec struct {
+type StringSpec struct {
 	StrValue              string
 	StrFieldLength        int
 	StrPadChar            rune
+	StrPosition           FieldPositionSpec
 }
 
-// CopyOut - Returns a deep copy of the current StringTextSpec
+// CopyOut - Returns a deep copy of the current StringSpec
 // instance.
-func (strTxtSpec *StringTextSpec) CopyOut() StringTextSpec {
+func (strTxtSpec *StringSpec) CopyOut() StringSpec {
 
-	newStrSpec := StringTextSpec{}
+	newStrSpec := StringSpec{}
 	newStrSpec.StrValue = strTxtSpec.StrValue
 	newStrSpec.StrFieldLength = strTxtSpec.StrFieldLength
 	newStrSpec.StrPadChar = strTxtSpec.StrPadChar
@@ -235,17 +233,17 @@ func (strTxtSpec *StringTextSpec) CopyOut() StringTextSpec {
 }
 
 
-// FieldType - returns a string specifying the type
+// TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
 // requirements of TextFieldSpec interface
-func (strTxtSpec StringTextSpec) FieldType() string {
-	return "StringTextSpec"
+func (strTxtSpec StringSpec) TextTypeName() string {
+	return "StringSpec"
 }
 
-// NewPtr - Returns a pointer to a new StringTextSpec instance.
-func (strTxtSpec StringTextSpec) NewPtr() *StringTextSpec {
+// NewPtr - Returns a pointer to a new StringSpec instance.
+func (strTxtSpec StringSpec) NewPtr() *StringSpec {
 
-	newStrTxtSpec := StringTextSpec{}
+	newStrTxtSpec := StringSpec{}
 
 	return &newStrTxtSpec
 }
