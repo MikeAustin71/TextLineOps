@@ -6,10 +6,67 @@ import (
 	"strings"
 )
 
+type TextSpec interface {
+	TextTypeName() string
+}
+
 
 type TextLineBuilder struct {
 	Input    string
 	Output   string
+}
+
+func (txtBuilder TextLineBuilder) ArrayBuild(
+	b *strings.Builder,
+	specs []TextSpec,
+	ePrefix string) error {
+
+	ePrefix += "TextLineBuilder.ArrayBuild() "
+
+	return txtBuilder.Build(b, ePrefix, specs ...)
+}
+
+func (txtBuilder TextLineBuilder) Build(
+	b *strings.Builder,
+	ePrefix string,
+	specs ... TextSpec) error {
+
+	ePrefix += "TextLineBuilder.Build() "
+	var err error
+
+	for i, txtSpec := range specs {
+
+		switch t := txtSpec.(type) {
+
+		case BlankLinesSpec:
+			err = txtBuilder.CreateBlankLinesSpec(t, b, ePrefix)
+		case IntegerSpec:
+			err = txtBuilder.CreateIntegerSpec(t, b, ePrefix)
+		case LineSpec:
+			err = txtBuilder.CreateLineSpec(t, b, ePrefix)
+		case MarginSpec:
+			err = txtBuilder.CreateMarginSpec(t, b, ePrefix)
+		case NewLineSpec:
+			err = txtBuilder.CreateNewLineSpec(t, b, ePrefix)
+		case StringSpec:
+			err = txtBuilder.CreateStringSpec(t, b, ePrefix)
+		case LineBreakField:
+			err = txtBuilder.CreateLineBreakField(t, b, ePrefix)
+		case NumericIntField:
+			err = txtBuilder.CreateNumericIntField(t, b, ePrefix)
+		case OneLabelOneIntField:
+			err = txtBuilder.CreateOneLabelOneIntField(t, b, ePrefix)
+		case StringField:
+			err = txtBuilder.CreateStringField(t, b, ePrefix)
+		case TwoLabelStrField:
+			err = txtBuilder.CreateTwoLabelStrField(t, b, ePrefix)
+		default:
+			err = fmt.Errorf(ePrefix +
+				"\nError: Text Specification at index #%v is invalid!\n", i)
+		}
+	}
+
+	return err
 }
 
 func (txtBuilder TextLineBuilder) CenterInField(
@@ -99,12 +156,12 @@ func (txtBuilder TextLineBuilder) CenterInField(
 	return nil
 }
 
-func (txtBuilder TextLineBuilder) CreateBlankLines(
+func (txtBuilder TextLineBuilder) CreateBlankLinesSpec(
 	blankLines BlankLinesSpec,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TextLineBuilder.CreateBlankLines() "
+	ePrefix += "TextLineBuilder.CreateBlankLinesSpec() "
 
 	if b == nil{
 		return errors.New(ePrefix +
@@ -132,12 +189,12 @@ func (txtBuilder TextLineBuilder) CreateBlankLines(
 	return nil
 }
 
-func (txtBuilder TextLineBuilder) CreateIntegerText(
+func (txtBuilder TextLineBuilder) CreateIntegerSpec(
 	intTxtSpec IntegerSpec,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TextLineBuilder.CreateIntegerText() "
+	ePrefix += "TextLineBuilder.CreateIntegerSpec() "
 
 	if b == nil{
 		return errors.New(ePrefix +
@@ -222,12 +279,12 @@ func (txtBuilder TextLineBuilder) CreateIntegerText(
 	return nil
 }
 
-func (txtBuilder TextLineBuilder) CreateLineBreak(
-	lineBreak LineBreakSpec,
+func (txtBuilder TextLineBuilder) CreateLineBreakField(
+	lineBreak LineBreakField,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TextLineBuilder.CreateLineBreak() "
+	ePrefix += "TextLineBuilder.CreateLineBreakField() "
 
 	if b == nil{
 		return errors.New(ePrefix +
@@ -241,7 +298,7 @@ func (txtBuilder TextLineBuilder) CreateLineBreak(
 
 	var err error
 
-	err = txtBuilder.CreateBlankLines(
+	err = txtBuilder.CreateBlankLinesSpec(
 		lineBreak.LeadingBlankLines,
 		b,
 		ePrefix)
@@ -251,7 +308,7 @@ func (txtBuilder TextLineBuilder) CreateLineBreak(
 	}
 
 
-	err = txtBuilder.CreateMarginField(
+	err = txtBuilder.CreateMarginSpec(
 		lineBreak.LeftMargin,
 		b,
 		ePrefix)
@@ -260,7 +317,7 @@ func (txtBuilder TextLineBuilder) CreateLineBreak(
 		return err
 	}
 
-	err = txtBuilder.CreateMarginField(
+	err = txtBuilder.CreateMarginSpec(
 		lineBreak.LeftSpacer,
 		b,
 		ePrefix)
@@ -269,13 +326,13 @@ func (txtBuilder TextLineBuilder) CreateLineBreak(
 		return err
 	}
 
-	err = txtBuilder.CreateLine(lineBreak.LineSpec, b, ePrefix)
+	err = txtBuilder.CreateLineSpec(lineBreak.LineSpec, b, ePrefix)
 
 	if err != nil {
 		return err
 	}
 
-	err = txtBuilder.CreateMarginField(
+	err = txtBuilder.CreateMarginSpec(
 		lineBreak.RightSpacer,
 		b,
 		ePrefix)
@@ -284,7 +341,7 @@ func (txtBuilder TextLineBuilder) CreateLineBreak(
 		return err
 	}
 
-	err = txtBuilder.CreateNewLine(
+	err = txtBuilder.CreateNewLineSpec(
 		lineBreak.TerminateWithNewLine,
 		b,
 		ePrefix)
@@ -293,7 +350,7 @@ func (txtBuilder TextLineBuilder) CreateLineBreak(
 		return err
 	}
 
-	err = txtBuilder.CreateBlankLines(
+	err = txtBuilder.CreateBlankLinesSpec(
 		lineBreak.TrailingBlankLines,
 		b,
 		ePrefix)
@@ -305,12 +362,14 @@ func (txtBuilder TextLineBuilder) CreateLineBreak(
 	return nil
 }
 
-func (txtBuilder TextLineBuilder) CreateLine(
+// CreateLineSpec - Creates a string from the Create Line
+// Specification and writes it to a strings.Builder.
+func (txtBuilder TextLineBuilder) CreateLineSpec(
 	lineSpec LineSpec,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TextLineBuilder.CreateLine() "
+	ePrefix += "TextLineBuilder.CreateLineSpec() "
 
 	if b == nil{
 		return errors.New(ePrefix +
@@ -323,33 +382,101 @@ func (txtBuilder TextLineBuilder) CreateLine(
 
 
 	if lineSpec.LineChar == 0 {
-		return fmt.Errorf(ePrefix +
-			"\nError: Input parameter lineSpec.LineChar is ZERO!\n")
+		return nil
 	}
+
+	if lineSpec.LineFieldLength < lineSpec.LineLength {
+		return fmt.Errorf(ePrefix +
+			"\nError: lineSpec.LineFieldLength IS LESS THAN lineSpec.LineLength!\n" +
+			"lineSpec.LineFieldLength='%v'   lineSpec.LineLength='%v'\n",
+			lineSpec.LineFieldLength, lineSpec.LineLength)
+	}
+
+	xb := strings.Builder{}
+
+	xb.Grow(lineSpec.LineLength + 5)
+
 
 	var err error
 
 	for i:=0; i < lineSpec.LineLength; i++ {
 
-		_, err = b.WriteRune(lineSpec.LineChar)
+		_, err = xb.WriteRune(lineSpec.LineChar)
 
 		if err != nil {
 			return fmt.Errorf(ePrefix +
-				"\nError returned by b.WriteRune(lineSpec.LineChar).\n" +
+				"\nError returned by xb.WriteRune(lineSpec.LineChar).\n" +
 				"lineSpec.LineChar='%v'\n" +
 				"Error='%v'\n", lineSpec.LineChar, err.Error())
 		}
 	}
 
-	return nil
+	if lineSpec.LineLength == lineSpec.LineFieldLength {
+
+		_, err = b.WriteString(xb.String())
+
+		if err != nil {
+			return fmt.Errorf(ePrefix +
+				"\nError returned by b.WriteString(xb.String()).\n" +
+				"lineSpec.LineChar='%v'\n" +
+				"lineSpec.LineLength='%v'   lineSpec.LineFieldLength='%v'\n" +
+				"Error='%v'\n",
+				lineSpec.LineChar,
+				lineSpec.LineLength,
+				lineSpec.LineFieldLength,
+				err.Error())
+		}
+	}
+
+		if lineSpec.LineFieldPadChar == 0 {
+			return errors.New(ePrefix +
+				"\nError: lineSpec.LineFieldPadChar is ZERO!\n")
+		}
+
+		switch lineSpec.LinePosition {
+
+		case FieldPos.LeftJustify() :
+
+			err = txtBuilder.LeftJustifyField(
+				xb.String(),
+				lineSpec.LineFieldLength,
+				lineSpec.LineFieldPadChar,
+				b,
+				ePrefix)
+
+		case FieldPos.RightJustify() :
+
+			err = txtBuilder.RightJustifyField(
+				xb.String(),
+				lineSpec.LineFieldLength,
+				lineSpec.LineFieldPadChar,
+				b,
+				ePrefix)
+
+		case FieldPos.Center() :
+
+			err = txtBuilder.CenterInField(
+				xb.String(),
+				lineSpec.LineFieldLength,
+				lineSpec.LineFieldPadChar,
+				b,
+				ePrefix)
+
+		default:
+			err = fmt.Errorf(ePrefix +
+				"\nError: Input parameter lineSpec.LinePosition is invalid!\n" +
+				"lineSpec.LinePosition value='%v'\n", lineSpec.LinePosition.UtilityValue())
+		}
+
+	return err
 }
 
-func (txtBuilder TextLineBuilder) CreateMarginField(
+func (txtBuilder TextLineBuilder) CreateMarginSpec(
 	margin MarginSpec,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TextLineBuilder.CreateMarginField() "
+	ePrefix += "TextLineBuilder.CreateMarginSpec() "
 
 	if b == nil{
 		return errors.New(ePrefix +
@@ -405,12 +532,12 @@ func (txtBuilder TextLineBuilder) CreateMarginField(
 		return nil
 }
 
-func (txtBuilder TextLineBuilder) CreateNewLine(
+func (txtBuilder TextLineBuilder) CreateNewLineSpec(
 	newLineSpec NewLineSpec,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TextLineBuilder.CreateNewLine() "
+	ePrefix += "TextLineBuilder.CreateNewLineSpec() "
 
 	if b == nil{
 		return errors.New(ePrefix +
@@ -436,7 +563,7 @@ func (txtBuilder TextLineBuilder) CreateNewLine(
 }
 
 func (txtBuilder TextLineBuilder) CreateNumericIntField(
-	numSpec NumericIntFieldSpec,
+	numSpec NumericIntField,
 	b *strings.Builder,
 	ePrefix string) error {
 
@@ -449,7 +576,7 @@ func (txtBuilder TextLineBuilder) CreateNumericIntField(
 
 	var err error
 
-	err = txtBuilder.CreateMarginField(
+	err = txtBuilder.CreateMarginSpec(
 		numSpec.LeftMargin,
 		b,
 		ePrefix)
@@ -459,7 +586,7 @@ func (txtBuilder TextLineBuilder) CreateNumericIntField(
 	}
 
 
-	err = txtBuilder.CreateMarginField(
+	err = txtBuilder.CreateMarginSpec(
 		numSpec.LeftSpacer,
 		b,
 		ePrefix)
@@ -468,40 +595,13 @@ func (txtBuilder TextLineBuilder) CreateNumericIntField(
 		return err
 	}
 
-	numFmt := ""
+	err = txtBuilder.CreateIntegerSpec(numSpec.NumberSpec, b, ePrefix)
 
-	if len(numSpec.NumericFieldSpec) == 0 {
-		numFmt = "%d"
-	} else {
-		numFmt = numSpec.NumericFieldSpec
+	if err != nil {
+		return err
 	}
 
-	numStr := fmt.Sprintf(numFmt, numSpec.NumericValue)
-
-	switch numSpec.NumericPosition {
-
-	case FieldPos.RightJustify():
-
-		err = txtBuilder.RightJustifyField(
-			numStr,numSpec.NumericFieldLength, numSpec.NumericPadChar, b, ePrefix)
-
-	case FieldPos.LeftJustify():
-
-		err = txtBuilder.LeftJustifyField(
-			numStr,numSpec.NumericFieldLength, numSpec.NumericPadChar, b, ePrefix)
-
-	case FieldPos.Center():
-
-		err = txtBuilder.CenterInField(
-			numStr,numSpec.NumericFieldLength, numSpec.NumericPadChar, b, ePrefix)
-
-	default:
-
-		err = errors.New(ePrefix +
-			"\nError: Number Specification Field Postion is Invalid!\n")
-	}
-
-	err = txtBuilder.CreateMarginField(
+	err = txtBuilder.CreateMarginSpec(
 		numSpec.RightSpacer,
 		b,
 		ePrefix)
@@ -510,23 +610,17 @@ func (txtBuilder TextLineBuilder) CreateNumericIntField(
 		return err
 	}
 
-	if numSpec.TerminateWithNewLine {
-		err = txtBuilder.CreateNewLine(1, b, ePrefix)
+	err = txtBuilder.CreateNewLineSpec(numSpec.TerminateWithNewLine, b, ePrefix)
 
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return err
 }
 
-func (txtBuilder TextLineBuilder) CreateOneLabelOneIntLine(
-	oneLabelOneInt OneLabelOneIntLine,
+func (txtBuilder TextLineBuilder) CreateOneLabelOneIntField(
+	oneLabelOneInt OneLabelOneIntField,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TzLogOps.CreateOneLabelOneIntLine() "
+	ePrefix += "TzLogOps.CreateOneLabelOneIntField() "
 
 
 	if b == nil{
@@ -536,13 +630,13 @@ func (txtBuilder TextLineBuilder) CreateOneLabelOneIntLine(
 
 	var err error
 
-	err = txtBuilder.CreateNewLine(oneLabelOneInt.LeadingBlankLines, b, ePrefix)
+	err = txtBuilder.CreateBlankLinesSpec(oneLabelOneInt.LeadingBlankLines, b, ePrefix)
 
 	if err != nil {
 		return err
 	}
 
-	err = txtBuilder.CreateLineBreak(oneLabelOneInt.TopLineBreak, b, ePrefix)
+	err = txtBuilder.CreateLineBreakField(oneLabelOneInt.TopLineBreak, b, ePrefix)
 
 	if err != nil {
 		return err
@@ -560,28 +654,27 @@ func (txtBuilder TextLineBuilder) CreateOneLabelOneIntLine(
 		return err
 	}
 
-	err = txtBuilder.CreateLineBreak(oneLabelOneInt.BottomLineBreak, b, ePrefix)
+	err = txtBuilder.CreateLineBreakField(oneLabelOneInt.BottomLineBreak, b, ePrefix)
 
 	if err != nil {
 		return err
 	}
 
-	err = txtBuilder.CreateNewLine(oneLabelOneInt.TrailingBlankLines, b, ePrefix)
+	err = txtBuilder.CreateBlankLinesSpec(oneLabelOneInt.TrailingBlankLines, b, ePrefix)
 
 	if err != nil {
 		return err
 	}
-
 
 	return nil
 }
 
-func (txtBuilder TextLineBuilder) CreateTwoLabelStrLine(
-	twoLabelStrLine TwoLabelStrLine,
+func (txtBuilder TextLineBuilder) CreateTwoLabelStrField(
+	twoLabelStrLine TwoLabelStrField,
 	b *strings.Builder,
 	ePrefix string) error {
 
-	ePrefix += "TextLineBuilder.CreateTwoLabelStrLine() "
+	ePrefix += "TextLineBuilder.CreateTwoLabelStrField() "
 
 	if b == nil{
 		return errors.New(ePrefix +
@@ -590,13 +683,13 @@ func (txtBuilder TextLineBuilder) CreateTwoLabelStrLine(
 
 	var err error
 
-	err = txtBuilder.CreateNewLine(twoLabelStrLine.LeadingBlankLines, b, ePrefix)
+	err = txtBuilder.CreateBlankLinesSpec(twoLabelStrLine.LeadingBlankLines, b, ePrefix)
 
 	if err != nil {
 		return err
 	}
 
-	err = txtBuilder.CreateLineBreak(twoLabelStrLine.TopLineBreak, b, ePrefix)
+	err = txtBuilder.CreateLineBreakField(twoLabelStrLine.TopLineBreak, b, ePrefix)
 
 	if err != nil {
 		return err
@@ -614,13 +707,13 @@ func (txtBuilder TextLineBuilder) CreateTwoLabelStrLine(
 		return err
 	}
 
-	err = txtBuilder.CreateLineBreak(twoLabelStrLine.BottomLineBreak, b, ePrefix)
+	err = txtBuilder.CreateLineBreakField(twoLabelStrLine.BottomLineBreak, b, ePrefix)
 
 	if err != nil {
 		return err
 	}
 
-	err = txtBuilder.CreateNewLine(twoLabelStrLine.TrailingBlankLines, b, ePrefix)
+	err = txtBuilder.CreateBlankLinesSpec(twoLabelStrLine.TrailingBlankLines, b, ePrefix)
 
 	if err != nil {
 		return err
@@ -629,11 +722,11 @@ func (txtBuilder TextLineBuilder) CreateTwoLabelStrLine(
 	return nil
 }
 
-// CreateStringField - Designed to handle StringFieldSpec specifications.
+// CreateStringField - Designed to handle StringField specifications.
 func (txtBuilder TextLineBuilder) CreateStringField(
-	strSpec StringFieldSpec,
+	strField StringField,
 	b *strings.Builder,
-	ePrefix string) error{
+	ePrefix string) error {
 
 	ePrefix += "TextLineBuilder.CreateStringField() "
 
@@ -644,8 +737,8 @@ func (txtBuilder TextLineBuilder) CreateStringField(
 
 	var err error
 
-	err = txtBuilder.CreateMarginField(
-		strSpec.LeftMargin,
+	err = txtBuilder.CreateMarginSpec(
+		strField.LeftMargin,
 		b,
 		ePrefix)
 
@@ -654,14 +747,50 @@ func (txtBuilder TextLineBuilder) CreateStringField(
 	}
 
 
-	err = txtBuilder.CreateMarginField(
-		strSpec.LeftSpacer,
+	err = txtBuilder.CreateMarginSpec(
+		strField.LeftSpacer,
 		b,
 		ePrefix)
 
 	if err != nil {
 		return err
 	}
+
+
+	err = txtBuilder.CreateStringSpec(strField.StrTxtSpec, b, ePrefix)
+
+	if err != nil {
+		return err
+	}
+
+	err = txtBuilder.CreateMarginSpec(
+		strField.RightSpacer,
+		b,
+		ePrefix)
+
+	if err != nil {
+		return err
+	}
+
+	err = txtBuilder.CreateNewLineSpec(strField.TerminateWithNewLine,b, ePrefix)
+
+	if err != nil {
+			return err
+		}
+
+	return nil
+}
+
+// CreateStringSpec - Receives 'StringSpec' type and then proceeds
+// to create the string and write it to the string builder.
+func (txtBuilder TextLineBuilder) CreateStringSpec(
+	strSpec StringSpec,
+	b *strings.Builder,
+	ePrefix string) error {
+
+	ePrefix += "TextLineBuilder) CreateStringSpec() "
+
+	var err error
 
 	switch strSpec.StrPosition {
 
@@ -702,22 +831,6 @@ func (txtBuilder TextLineBuilder) CreateStringField(
 		return err
 	}
 
-	err = txtBuilder.CreateMarginField(
-		strSpec.RightSpacer,
-		b,
-		ePrefix)
-
-	if err != nil {
-		return err
-	}
-
-	if strSpec.TerminateWithNewLine {
-		err = txtBuilder.CreateNewLine(1,b, ePrefix)
-
-		if err != nil {
-			return err
-		}
-	}
 
 	return nil
 }

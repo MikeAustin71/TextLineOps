@@ -1,4 +1,5 @@
 github.com/MikeAustin71/pathfileopsgo v0.0.0-20190825045913-6fd082859b2f/go.mod h1:9rP3EFFtH623cd/tQrevH0tMvvf0TRLPS/U2F/472ZY=
+github.com/MikeAustin71/pathfileopsgo/pathfileops/v2 v2.0.0 h1:sVsGnKy2/EhrlVSgVsvy6FP/aNucXm0erKrGWz+jv2w=
 github.com/MikeAustin71/pathfileopsgo/pathfileops/v2 v2.0.0/go.mod h1:bqTi8XY6QfbDbktlES2fIHf8DHHIQaI2HQFooRAT1lk=
 github.com/MikeAustin71/stringopsgo/strops/v2 v2.0.4/go.mod h1:Hvo1uQbVBwb9XR7wNxbJDwmc54C3IStkmbSIeYrei2Q=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

@@ -5,6 +5,7 @@ import (
 	"github.com/MikeAustin71/pathfileopsgo/pathfileops/v2"
 	"local.com/amarillomike/TextLineOps/textlinebuilder"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -18,26 +19,61 @@ func main() {
 		return
 	}
 
+	var b strings.Builder
+
+	b, err = mainTest{}.createTextLines(ePrefix)
+
+	if err != nil {
+		fmt.Printf("%v", err.Error())
+		return
+	}
+
 
 	var fMgr pathfileops.FileMgr
 
 	fMgr, err = mainTest{}.createOutputFile(dMgr, ePrefix)
 
+	if err != nil {
+		fmt.Printf("%v", err.Error())
+		return
+	}
 
-	txtLnAry := make([]textlinebuilder.TextFieldSpec, 0)
 
-	blankLines := textlinebuilder.BlankLinesSpec{}
+	errs := make([]error, 0)
 
-	blankLines.NumBlankLines = 3
+	_, err = fMgr.WriteBytesToFile([]byte(b.String()))
 
-	txtLnAry = append(txtLnAry, blankLines)
+	if err != nil {
+		err2 := fmt.Errorf("%v", err.Error())
 
-	stringField := textlinebuilder.StringFieldSpec{}
+		errs = append(errs, err2)
+	}
 
-	txtLnAry = append(txtLnAry, stringField )
+	err = fMgr.FlushBytesToDisk()
 
-	fmt.Printf("Testing Text Line Builder")
+	if err != nil {
+		err2 := fmt.Errorf("%v", err.Error())
 
+		errs = append(errs, err2)
+	}
+
+	err = fMgr.CloseThisFile()
+
+	if err != nil {
+		err2 := fmt.Errorf("%v", err.Error())
+
+		errs = append(errs, err2)
+	}
+
+	err = pathfileops.FileHelper{}.ConsolidateErrors(errs)
+
+	if err != nil {
+		fmt.Printf("%v", err.Error())
+		return
+	}
+
+	fmt.Printf(" ** SUCCESS!! **")
+	fmt.Printf("Text Line Builder")
 }
 
 type mainTest struct {
@@ -78,7 +114,7 @@ func (mtest mainTest) createOutputFile(
 		ePrefix += "mainTest.createOutputFile() "
 
 		outputFilePathName := curDir.GetAbsolutePathWithSeparator() +
-			"output" + string(os.PathSeparator)
+			"output" + string(os.PathSeparator) + "textlinebuilder.txt"
 
 		f, err := pathfileops.FileMgr{}.New(outputFilePathName)
 
@@ -145,4 +181,69 @@ func (mtest mainTest) createOutputFile(
 	err = nil
 
 	return f, err
+}
+
+// createTextLines - Creates the test lines of text and returns them in
+// a string builder.
+func (mtest mainTest) createTextLines(ePrefix string) (strings.Builder, error) {
+
+	ePrefix += "mainTest.createTextLines() "
+
+	b := strings.Builder{}
+
+	b.Grow(2048)
+
+
+	blankLines := textlinebuilder.BlankLinesSpec{NumBlankLines:2}
+
+	leftMargin := textlinebuilder.MarginSpec{MarginStr:"", MarginLength: 2, MarginChar: ' '}
+	leftSpacer := textlinebuilder.MarginSpec{}
+	labelStr := textlinebuilder.StringSpec{StrValue:"SomeTitle",StrFieldLength:60,StrPadChar:' ',StrPosition: textlinebuilder.FieldPos.Center()}
+	rightSpacer := textlinebuilder.MarginSpec{}
+	newLine := textlinebuilder.NewLineSpec{AddNewLine:true}
+
+	err := textlinebuilder.TextLineBuilder{}.Build(&b, ePrefix,
+		blankLines,
+		leftMargin,
+		leftSpacer,
+		labelStr,
+		rightSpacer,
+		newLine)
+
+	if err != nil {
+		return strings.Builder{}, err
+	}
+
+	blankLines.NumBlankLines = 0
+
+	lineSpec := textlinebuilder.LineSpec{
+		LineChar:         '*',
+		LineLength:       9,
+		LineFieldLength:  60,
+		LineFieldPadChar: ' ',
+		LinePosition:     textlinebuilder.FieldPos.Center(),
+	}
+
+
+
+	lineBreak := textlinebuilder.LineBreakField{
+		CreateLineBreak:      true,
+		LeadingBlankLines:    blankLines.CopyOut(),
+		LeftMargin:           leftMargin.CopyOut(),
+		LeftSpacer:           leftSpacer.CopyOut(),
+		LineSpec:             lineSpec.CopyOut(),
+		RightSpacer:          rightSpacer.CopyOut(),
+		TerminateWithNewLine: newLine.CopyOut(),
+		TrailingBlankLines:   textlinebuilder.BlankLinesSpec{NumBlankLines:2},
+	}
+
+	err = textlinebuilder.TextLineBuilder{}.Build(&b,
+		ePrefix,
+		lineBreak)
+
+	if err != nil {
+		return strings.Builder{}, err
+	}
+
+	return b, nil
 }

@@ -1,142 +1,51 @@
 package textlinebuilder
 
-type TextFieldSpec interface {
-	TextTypeName() string
+
+type LineBreakField struct {
+	CreateLineBreak      bool
+	LeadingBlankLines    BlankLinesSpec
+	LeftMargin           MarginSpec
+	LeftSpacer           MarginSpec
+	LineSpec             LineSpec
+	RightSpacer          MarginSpec
+	TerminateWithNewLine NewLineSpec
+	TrailingBlankLines   BlankLinesSpec
 }
 
-type IntegerSpec struct {
-	NumericValue          int
-	NumericFieldSpec      string
-	NumericFieldLength    int
-	NumericPadChar        rune
-	NumericPosition       FieldPositionSpec
+func (lineBrk *LineBreakField) CopyOut() LineBreakField {
+
+	newLineBreak := LineBreakField{}
+
+	newLineBreak.CreateLineBreak = lineBrk.CreateLineBreak
+	newLineBreak.LeadingBlankLines = lineBrk.LeadingBlankLines.CopyOut()
+	newLineBreak.LeftMargin = lineBrk.LeftMargin.CopyOut()
+	newLineBreak.LeftSpacer = lineBrk.LeftSpacer.CopyOut()
+	newLineBreak.LineSpec = lineBrk.LineSpec.CopyOut()
+	newLineBreak.RightSpacer = lineBrk.RightSpacer.CopyOut()
+	newLineBreak.TerminateWithNewLine = lineBrk.TerminateWithNewLine.CopyOut()
+	newLineBreak.TrailingBlankLines = lineBrk.TrailingBlankLines.CopyOut()
+
+	return newLineBreak
 }
 
-func (intSpec *IntegerSpec) CopyOut() IntegerSpec {
+// NewPtr - Returns a pointer to a new LineBreakField
+// instance.
+func (lineBrk LineBreakField) NewPtr() *LineBreakField {
 
-	newInt := IntegerSpec{}
-	newInt.NumericValue = intSpec.NumericValue
-	newInt.NumericFieldSpec = intSpec.NumericFieldSpec
-	newInt.NumericFieldLength = intSpec.NumericFieldLength
-	newInt.NumericPadChar = intSpec.NumericPadChar
+	newLineBreak := LineBreakField{}
 
-	return newInt
+	return &newLineBreak
 }
 
 // TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
-// requirements of TextFieldSpec interface
-func (intSpec IntegerSpec) TextTypeName() string {
-	return "IntegerSpec"
-}
-
-// NewPtr - Returns a pointer to a new LineSpec
-// instance.
-func (intSpec IntegerSpec) NewPtr() *IntegerSpec {
-
-	anotherIntTxtSpec := IntegerSpec{}
-
-	return &anotherIntTxtSpec
+// requirements of TextSpec interface
+func (lineBrk LineBreakField) TextTypeName() string {
+	return "LineBreakField"
 }
 
 
-type LineSpec struct {
-	LineChar         rune
-	LineLength       int
-}
-
-// CopyOut - Returns a deep copy of LineSpec
-// data fields.
-func (lineSpec *LineSpec) CopyOut() LineSpec {
-
-	newLineSpec := LineSpec{}
-	newLineSpec.LineChar = lineSpec.LineChar
-	newLineSpec.LineLength = lineSpec.LineLength
-
-	return newLineSpec
-}
-
-// TextTypeName - returns a string specifying the type
-// of Text Field specification. This method fulfills
-// requirements of TextFieldSpec interface
-func (lineSpec LineSpec) TextTypeName() string {
-	return "LineSpec"
-}
-
-// NewPtr - Returns a pointer to a new LineSpec
-// instance.
-func (lineSpec LineSpec) NewPtr() *LineSpec {
-
-	anotherLineSpec := LineSpec{}
-
-	return &anotherLineSpec
-}
-
-
-type MarginSpec struct {
-	MarginStr           string
-	MarginLength        int
-	MarginChar          rune
-}
-
-func (margin *MarginSpec) CopyOut() MarginSpec {
-
-	newMargin := MarginSpec{}
-
-	newMargin.MarginStr = margin.MarginStr
-	newMargin.MarginChar = margin.MarginChar
-	newMargin.MarginLength = margin.MarginLength
-
-	return newMargin
-}
-
-// TextTypeName - returns a string specifying the type
-// of Text Field specification. This method fulfills
-// requirements of TextFieldSpec interface
-func (margin MarginSpec) TextTypeName() string {
-	return "MarginSpec"
-}
-
-// NewPtr - Returns a pointer to a new MarginSpec
-// instance.
-func (margin MarginSpec) NewPtr() *MarginSpec {
-
-	newMarginField := MarginSpec{}
-
-	return &newMarginField
-}
-
-
-type NewLineSpec struct {
-	AddNewLine        bool
-}
-
-func (newLine *NewLineSpec) CopyOut() NewLineSpec {
-	newNewLine := NewLineSpec{}
-
-	newNewLine.AddNewLine = newLine.AddNewLine
-
-	return newNewLine
-}
-
-// TextTypeName - returns a string specifying the type
-// of Text Field specification. This method fulfills
-// requirements of TextFieldSpec interface
-func (newLine NewLineSpec) TextTypeName() string {
-	return "NewLineSpec"
-}
-
-
-// NewPtr - Returns a pointer to a new NewLineSpec
-// instance.
-func (newLine NewLineSpec) NewPtr() *NewLineSpec {
-
-	newLineSpec := NewLineSpec{}
-
-	return &newLineSpec
-}
-
-type NumericIntFieldSpec struct {
+type NumericIntField struct {
 	LeftMargin           MarginSpec
 	LeftSpacer           MarginSpec
 	NumberSpec           IntegerSpec
@@ -144,11 +53,11 @@ type NumericIntFieldSpec struct {
 	TerminateWithNewLine NewLineSpec
 }
 
-// CopyOut - Returns a deep copy of the current NumericIntFieldSpec
+// CopyOut - Returns a deep copy of the current NumericIntField
 // instance.
-func (numIntField *NumericIntFieldSpec) CopyOut() NumericIntFieldSpec {
+func (numIntField *NumericIntField) CopyOut() NumericIntField {
 
-	newNumField := NumericIntFieldSpec{}
+	newNumField := NumericIntField{}
 
 	newNumField.LeftMargin = numIntField.LeftMargin.CopyOut()
 	newNumField.LeftSpacer = numIntField.LeftSpacer.CopyOut()
@@ -159,23 +68,63 @@ func (numIntField *NumericIntFieldSpec) CopyOut() NumericIntFieldSpec {
 	return newNumField
 }
 
-// TextTypeName - returns a string specifying the type
-// of Text Field specification. This method fulfills
-// requirements of TextFieldSpec interface
-func (numIntField NumericIntFieldSpec) TextTypeName() string {
-	return "NumericIntFieldSpec"
-}
+// NewPtr - Returns a pointer to a new NumericIntField instance.
+func (numIntField NumericIntField) NewPtr() *NumericIntField {
 
-// NewPtr - Returns a pointer to a new NumericIntFieldSpec instance.
-func (numIntField NumericIntFieldSpec) NewPtr() *NumericIntFieldSpec {
-
-	newNumIntSpec := NumericIntFieldSpec{}
+	newNumIntSpec := NumericIntField{}
 
 	return &newNumIntSpec
 }
 
+// TextTypeName - returns a string specifying the type
+// of Text Field specification. This method fulfills
+// requirements of TextSpec interface
+func (numIntField NumericIntField) TextTypeName() string {
+	return "NumericIntField"
+}
 
-type StringFieldSpec struct {
+
+type OneLabelOneIntField struct {
+	LeadingBlankLines  BlankLinesSpec
+	TopLineBreak       LineBreakField
+	Label1             StringField
+	Number1            NumericIntField
+	BottomLineBreak    LineBreakField
+	TrailingBlankLines BlankLinesSpec
+}
+
+// CopyOut - Returns a deep copy of the current OneLabelOneIntField
+// instance.
+func (labelIntLine *OneLabelOneIntField) CopyOut() OneLabelOneIntField {
+
+	newLabelInt := OneLabelOneIntField{}
+
+	newLabelInt.LeadingBlankLines = labelIntLine.LeadingBlankLines
+	newLabelInt.TopLineBreak = labelIntLine.TopLineBreak.CopyOut()
+	newLabelInt.Label1 = labelIntLine.Label1.CopyOut()
+	newLabelInt.Number1 = labelIntLine.Number1.CopyOut()
+	newLabelInt.BottomLineBreak = labelIntLine.BottomLineBreak.CopyOut()
+	newLabelInt.TrailingBlankLines = labelIntLine.TrailingBlankLines
+	return newLabelInt
+}
+
+// NewPtr - Returns a pointer to a new OneLabelOneIntField instance.
+func (labelIntLine OneLabelOneIntField) NewPtr() *OneLabelOneIntField {
+
+	newOneLabelOneIntLine := OneLabelOneIntField{}
+
+	return &newOneLabelOneIntLine
+}
+
+// TextTypeName - returns a string specifying the type
+// of Text Field specification. This method fulfills
+// requirements of TextSpec interface
+func (labelIntLine OneLabelOneIntField) TextTypeName() string {
+	return "OneLabelOneIntField"
+}
+
+
+type StringField struct {
 	LeftMargin           MarginSpec
 	LeftSpacer           MarginSpec
 	StrTxtSpec           StringSpec
@@ -183,9 +132,9 @@ type StringFieldSpec struct {
 	TerminateWithNewLine NewLineSpec
 }
 
-func (strField *StringFieldSpec) CopyOut() StringFieldSpec {
+func (strField *StringField) CopyOut() StringField {
 
-	newStrField := StringFieldSpec{}
+	newStrField := StringField{}
 
 	newStrField.LeftMargin = strField.LeftMargin.CopyOut()
 	newStrField.LeftSpacer = strField.LeftSpacer.CopyOut()
@@ -196,54 +145,59 @@ func (strField *StringFieldSpec) CopyOut() StringFieldSpec {
 	return newStrField
 }
 
-// TextTypeName - returns a string specifying the type
-// of Text Field specification. This method fulfills
-// requirements of TextFieldSpec interface
-func (strField StringFieldSpec) TextTypeName() string {
-	return "StringFieldSpec"
-}
+// NewPtr - Returns a pointer to a new StringField instance.
+func (strField StringField) NewPtr() *StringField {
 
-
-// NewPtr - Returns a pointer to a new StringFieldSpec instance.
-func (strField StringFieldSpec) NewPtr() *StringFieldSpec {
-
-	newStrFieldSpec := StringFieldSpec{}
+	newStrFieldSpec := StringField{}
 
 	return &newStrFieldSpec
 }
 
-
-type StringSpec struct {
-	StrValue              string
-	StrFieldLength        int
-	StrPadChar            rune
-	StrPosition           FieldPositionSpec
+// TextTypeName - returns a string specifying the type
+// of Text Field specification. This method fulfills
+// requirements of TextSpec interface
+func (strField StringField) TextTypeName() string {
+	return "StringField"
 }
 
-// CopyOut - Returns a deep copy of the current StringSpec
+
+type TwoLabelStrField struct {
+	LeadingBlankLines  BlankLinesSpec
+	TopLineBreak       LineBreakField
+	Label1             StringField
+	Label2             StringField
+	BottomLineBreak    LineBreakField
+	TrailingBlankLines BlankLinesSpec
+}
+
+// CopyOut - Returns a deep copy of the current TwoLabelStrField
 // instance.
-func (strTxtSpec *StringSpec) CopyOut() StringSpec {
+func (twoLabelLine *TwoLabelStrField) CopyOut() TwoLabelStrField {
 
-	newStrSpec := StringSpec{}
-	newStrSpec.StrValue = strTxtSpec.StrValue
-	newStrSpec.StrFieldLength = strTxtSpec.StrFieldLength
-	newStrSpec.StrPadChar = strTxtSpec.StrPadChar
+	newTwoLabelLine := TwoLabelStrField{}
 
-	return newStrSpec
+	newTwoLabelLine.LeadingBlankLines = twoLabelLine.LeadingBlankLines.CopyOut()
+	newTwoLabelLine.TopLineBreak = twoLabelLine.TopLineBreak.CopyOut()
+	newTwoLabelLine.Label1 = twoLabelLine.Label1.CopyOut()
+	newTwoLabelLine.Label2 = twoLabelLine.Label2.CopyOut()
+	newTwoLabelLine.BottomLineBreak = twoLabelLine.BottomLineBreak.CopyOut()
+	newTwoLabelLine.TrailingBlankLines = twoLabelLine.TrailingBlankLines.CopyOut()
+
+	return newTwoLabelLine
 }
-
 
 // TextTypeName - returns a string specifying the type
 // of Text Field specification. This method fulfills
-// requirements of TextFieldSpec interface
-func (strTxtSpec StringSpec) TextTypeName() string {
-	return "StringSpec"
+// requirements of TextSpec interface
+func (twoLabelLine TwoLabelStrField) TextTypeName() string {
+	return "TwoLabelStrField"
 }
 
-// NewPtr - Returns a pointer to a new StringSpec instance.
-func (strTxtSpec StringSpec) NewPtr() *StringSpec {
+// NewPtr - Returns a pointer to a new TwoLabelStrField instance.
+func (twoLabelLine TwoLabelStrField) NewPtr() *TwoLabelStrField {
 
-	newStrTxtSpec := StringSpec{}
+	newTwoLabelLine := TwoLabelStrField{}
 
-	return &newStrTxtSpec
+	return &newTwoLabelLine
 }
+
