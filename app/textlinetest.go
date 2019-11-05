@@ -198,7 +198,13 @@ func (mtest mainTest) createTextLines(ePrefix string) (strings.Builder, error) {
 
 	leftMargin := textlinebuilder.MarginSpec{MarginStr:"", MarginLength: 2, MarginChar: ' '}
 	leftSpacer := textlinebuilder.MarginSpec{}
-	labelStr := textlinebuilder.StringSpec{StrValue:"SomeTitle",StrFieldLength:60,StrPadChar:' ',StrPosition: textlinebuilder.FieldPos.Center()}
+
+	labelStr := textlinebuilder.StringSpec{
+		StrValue:"SomeTitle",
+		StrFieldLength:60,
+		StrPadChar:' ',
+		StrPosition: textlinebuilder.FieldPos.Center()}
+
 	rightSpacer := textlinebuilder.MarginSpec{}
 	newLine := textlinebuilder.NewLineSpec{AddNewLine:true}
 

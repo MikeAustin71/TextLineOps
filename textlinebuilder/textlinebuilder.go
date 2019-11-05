@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-type TextSpec interface {
-	TextTypeName() string
-}
-
 
 type TextLineBuilder struct {
 	Input    string
@@ -117,7 +113,12 @@ func (txtBuilder TextLineBuilder) CenterInField(
 	grossPad := strFieldLen - lenStr
 	var leftPad, rightPad int
 
-	leftPad = grossPad / 2
+	// Pad example.
+	// Length of pad = 7
+	// 7/2 = 3
+	// Left Pad = 3     Right Pad = 4
+	// Extra 1-Pad char added to Right Pad
+		leftPad = grossPad / 2
 	rightPad = grossPad - leftPad
 
 	for i:= 0; i < leftPad; i++ {
